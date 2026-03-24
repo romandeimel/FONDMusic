@@ -953,9 +953,10 @@ async function api(path, opts = {}) {
   if (res.status === 204 || res.status === 202) return null;
   if (!res.ok) {
     const b = await res.json().catch(()=>({}));
+    const reason = b.error?.reason || '';
     const msg = b.error?.message || `HTTP ${res.status}`;
-    console.error(`Spotify API error [${res.status}] ${url}:`, b);
-    throw new Error(msg);
+    console.error(`Spotify API error [${res.status}] ${url}:`, JSON.stringify(b));
+    throw new Error(reason ? `${msg} (${reason})` : msg);
   }
   return res.json();
 }
