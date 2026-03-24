@@ -950,7 +950,12 @@ async function api(path, opts = {}) {
     headers:{ 'Authorization':`Bearer ${accessToken}`, 'Content-Type':'application/json', ...opts.headers },
   });
   if (res.status === 204 || res.status === 202) return null;
-  if (!res.ok) { const b = await res.json().catch(()=>({})); throw new Error(b.error?.message||`HTTP ${res.status}`); }
+  if (!res.ok) {
+    const b = await res.json().catch(()=>({}));
+    const msg = b.error?.message || `HTTP ${res.status}`;
+    console.error(`Spotify API error [${res.status}] ${url}:`, b);
+    throw new Error(msg);
+  }
   return res.json();
 }
 
@@ -1170,7 +1175,15 @@ async function openPlaylist(id) {
   } catch(e) {
     console.error('Track load error:', e);
     const el = document.getElementById('tracks-loading');
-    if (el) el.textContent = `Failed to load tracks: ${e.message}`;
+    if (!el) return;
+    if (e.message.includes('403') || e.message.toLowerCase().includes('forbidden')) {
+      el.innerHTML = `<span style="color:var(--muted2);font-size:12px;line-height:1.6">
+        Spotify restricts API access to this playlist.<br>
+        This usually affects curated/editorial playlists you follow but don't own.<br>
+        Try one of <strong>your own</strong> playlists instead.</span>`;
+    } else {
+      el.textContent = `Failed to load tracks: ${e.message}`;
+    }
   }
 }
 
