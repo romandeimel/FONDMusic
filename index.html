@@ -986,7 +986,7 @@ async function bootSpotify() {
       id: p.id, name: p.name, uri: p.uri,
       cover: p.images?.[0]?.url || '',
       owner: p.owner?.display_name || '',
-      tracks: [], total: p.tracks?.total ?? 0,
+      tracks: [], total: p.tracks?.total ?? p.tracks?.items?.length ?? 0,
     }));
     renderPlaylists();
   } catch(e) {
@@ -1168,8 +1168,9 @@ async function openPlaylist(id) {
     renderTracks(content, mapped, id, true);
     content.querySelector('#play-all-btn').onclick = () => { playSpotifyContext(pl.uri); showStage(); };
   } catch(e) {
+    console.error('Track load error:', e);
     const el = document.getElementById('tracks-loading');
-    if (el) el.textContent = 'Failed to load tracks.';
+    if (el) el.textContent = `Failed to load tracks: ${e.message}`;
   }
 }
 
