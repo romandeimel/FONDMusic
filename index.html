@@ -1155,7 +1155,7 @@ async function openPlaylist(id) {
 
   content.innerHTML += '<div id="tracks-loading" style="padding:20px;font-size:12px;color:var(--muted2)">Loading tracks…</div>';
   try {
-    let tracks = [], url = `/GET /playlists/{id}/items?limit=50`;
+    let tracks = [], url = `/playlists/${id}/items?limit=50`;
     while (url) {
       const d = await api(url);
       tracks = tracks.concat((d.items||[]).filter(i => i?.track?.id));
